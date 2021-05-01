@@ -1,0 +1,9 @@
+import requests
+answer = requests.get("from");
+
+for more information
+https://github.com/maraujop/requests-oauth2 //about oauth2
+https://stackoverflow.com/questions/16521486/tutorial-for-using-requests-oauth2 //about oauth2
+
+https://api.intra.42.fr/apidoc/guides/web_application_flow
+Need to create a script for intra's api
