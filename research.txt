@@ -7,3 +7,24 @@ https://stackoverflow.com/questions/16521486/tutorial-for-using-requests-oauth2 
 
 https://api.intra.42.fr/apidoc/guides/web_application_flow
 Need to create a script for intra's api
+
+https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html //requests and oauth2
+
+
+cmd + 0 // run file in terminal
+
+
+the dog api
+Thanks for signing up, welcome to the API!
+
+Your API key:
+
+51d5f3d1-9276-45e2-8f25-18cd8b4212ff
+
+Use it as the 'x-api-key' header when making any request to the API, or by adding as a query string paramter e.g. 'api_key=51d5f3d1-9276-45e2-8f25-18cd8b4212ff' More details on authentication.
+
+API Documentation | Postman Collection.
+
+If you need any example code, or have any questions then checkout the forum: https://forum.thatapiguy.com
+
+All the best, Aden.
