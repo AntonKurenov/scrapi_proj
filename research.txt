@@ -10,6 +10,9 @@ Need to create a script for intra's api
 
 https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html //requests and oauth2
 
+if request.ok:
+
+response.raise_for_status
 
 cmd + 0 // run file in terminal
 
