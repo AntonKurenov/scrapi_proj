@@ -7,23 +7,25 @@ from info import UID, SECRET
 redirect_uri = "https://httpbin.org/anything" 
 # redirect_uri = "http://127.0.0.1" 
 
-params = {'client_id': UID,
-        #   'redirect_uri': redirect_uri,
-          'response_type': 'code',
-          'scope': 'public',
-          'state': ''}
+params = {'grant_type': 'client_credentials',
+          'client_id': UID,
+          'client_secret': SECRET}
 
-response = requests.get("https://api.intra.42.fr/oauth/authorize", params=params)
+response = requests.post("https://api.intra.42.fr/oauth/token", params=params)
 
 
 if response.ok == False:
     print("an error ocurred")
     exit()
 
-print(response.headers['status'])
-print(response.headers)
-print('+++++++++++++++++++++++') 
-print(response.text)
+# print(response.headers['status'])
+# print(response.headers)
+resp_json = response.json()
+# print('+++++++++++++++++++++++') 
+# print(response.json())
+# print('+++++++++++++++++++++++') 
+# print(response.text)
+# print('+++++++++++++++++++++++') 
 # print(response.headers['code'])
 
 if response.is_redirect == True:
