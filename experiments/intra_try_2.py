@@ -18,16 +18,10 @@ if response.ok == False:
     print("an error ocurred")
     exit()
 
-# print(response.headers['status'])
-# print(response.headers)
 resp_json = response.json()
-# print('+++++++++++++++++++++++') 
-# print(response.json())
-# print('+++++++++++++++++++++++') 
-# print(response.text)
-# print('+++++++++++++++++++++++') 
-# print(response.headers['code'])
 
-if response.is_redirect == True:
-    print("redirect")
-    # print(res
+print(resp_json)
+
+f = open("ex00.out", "w")
+f.write(resp_json['access_token'])
+f.close()
