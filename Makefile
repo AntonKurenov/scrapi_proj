@@ -33,6 +33,7 @@ token:
 	python3 ./connector.py
 	cp $(TOKEN) ex00/
 	cp $(TOKEN) ex01/
+	cp $(TOKEN) ex02/
 
 # cp $(TOKEN) ex01/
 # cp $(TOKEN) ex01/

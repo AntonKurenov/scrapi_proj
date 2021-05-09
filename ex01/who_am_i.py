@@ -9,17 +9,14 @@ if len(sys.argv) != 2:
 
 file = open('token.out', 'r')
 token = file.readline()
-# print (token)
-# print (file.read())
 
 HEADERS = {'Authorization': f"Bearer {token}"}
 
 response = requests.get('https://api.intra.42.fr/v2/users', headers=HEADERS)
 
 users_list = response.json()
-print(users_list)
 needle = sys.argv[1]
-print(needle)
+result = 0
 for i in users_list:
     if needle == i['id']:
         result = i['login']
@@ -28,9 +25,8 @@ for i in users_list:
         result = i['id']
         break
 
-f = open("hello.txt", "w")
-print("hello")
+f = open("ex01.out", "w")
+if result == 0:
+    result = "Item not found"
 f.write(str(result))
-f.write("hehlelel")
-print("hello")
 f.close()
