@@ -28,5 +28,6 @@ for i in users_list:
 f = open("ex01.out", "w")
 if result == 0:
     result = "Item not found"
+    print("EMPTY")
 f.write(str(result))
 f.close()

@@ -20,6 +20,7 @@ def connect():
 
 resp_json = connect()
 
-f = open("ex00.out", "w")
-f.write(resp_json['access_token'])
-f.close()
+print(resp_json)
+# f = open("ex00.out", "w")
+# f.write(resp_json['access_token'])
+# f.close()
