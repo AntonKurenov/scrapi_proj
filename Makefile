@@ -13,27 +13,22 @@ PROJECT = project
 TOKEN = token.out
 .PHONY: token init start
 
-# print:
-# 	@echo $(LOGIN)
-# 	@echo $(MONTH)
+ex00:
 
-# print2:
-# 	@echo $(LOGIN)
-# 	@echo $(MONTH)
-# 	@echo $(FLAG)
-
-# ex00:
+start: init token ex00 ex01 ex02
 
 ex01:
 	python3 ./ex01/who_am_i.py $(LOGIN)
 
-start: init token 
+ex02:
+	python3 ./ex02/me_myself.py $(LOGIN)
 
 token:
 	python3 ./connector.py
 	cp $(TOKEN) ex00/
 	cp $(TOKEN) ex01/
 	cp $(TOKEN) ex02/
+	cp $(TOKEN) ex03/
 
 # cp $(TOKEN) ex01/
 # cp $(TOKEN) ex01/

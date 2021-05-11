@@ -1,6 +1,7 @@
 import json
 import sys
 import requests
+import calendar
 from time import sleep
 
 if len(sys.argv) != 2:
@@ -31,6 +32,20 @@ def retry_task():
     # for i in all_data:
     #     if all_data[i] == 'none':
 
+def month_to_num(month):
+    return {'january': 1,
+            'february': 2,
+            'march': 3,
+            'april': 4,
+            'may': 5,
+            'june': 6,
+            'july': 7,
+            'august': 8,
+            'september': 9,
+            'october': 10,
+            'november': 11,
+            'december': 12}[month]
+
 def write_to_file(what):
     fout.write(what)
 
@@ -41,62 +56,72 @@ def make_request(url, params={}):
             sleep(res.headers['Retry-after'])
         sleep(2)
         res = requests.get(url=url, headers=HEADERS, params=params)
-    elif res.status_code >= 400 && res.status_code <= 499:
+    elif res.status_code >= 400 and res.status_code <= 499:
         print(res.status_code)
+        exit(1)
     elif res.status_code == 500:
         retry_task()
+    # print(res.headers)
     if all_data['app_name'] == 'none':
         all_data['app_name'] = res.headers['X-Application-Name']
-        print(all_data['app_name'])
+        # print(all_data['app_name'])
         all_data['app_id'] = res.headers['X-Application-Id']
-        print(all_data['app_name'])
+        # print(all_data['app_name'])
     return res.json()
-
-# Get the name of the app:
-def get_app_name():
-    response = make_request('https://api.intra.42.fr/oauth/token/info')
-    app_uid = response['application']['uid']
-    print(app_uid)
-    response = make_request(basic_uri + '/apps/', {'filter[uid]': app_uid}) #str(app_id)})
-    write_to_file("app_name: " + str(response) + '\n')
-
-def get_app_id():
-    return res
 
 def get_user_id():
     needle = sys.argv[1]
-    write_to_file('user_id: ')
-    if needle.isdigit == True:
-        write_to_file(str(needle))
+    if needle.isdigit() == True:
+        print(needle)
+        all_data['user_id'] = needle
         return
     uri = basic_uri + '/users'
-    users_list = make_request(uri)
+    users_list = make_request(uri, {'filter[login]': str(needle)})
     result = 0
     for i in users_list:
         if needle == i['login']:
             result = i['id']
             break
-    write_to_file(str(result))
-    return result
+    all_data['user_id'] = result
+
+def get_piscine(response):
+    all_data['level_piscine'] = response['cursus_users'][0]['level']
+    if all_data['level_piscine'] == '':
+        all_data['level_piscine'] = 'none'
+    month = response['pool_month']
+    if month == '':
+        month = 'none'
+    year = response['pool_year']
+    if year == '':
+        year = 'none'
+    if month != 'none':
+        all_data['pool'] = str(month_to_num(month)) + ' ' + str(year)
+        return
+    all_data['pool'] = str(month) + ' ' + str(year)
 
 def get_level(user_id):
     """Write the level_42 and """
-    write_to_file("level_42: ")
     response = make_request(basic_uri + 'users/' + str(user_id))
-    print(response)
-    write(str(response['cursus_users']['level']))
-    write(
+    # print(response)
+    all_data['level_42'] = response['cursus_users'][0]['level']
+    all_data['wallets'] = response['wallet']
+    all_data['correction_points'] = response['correction_point']
+    # print(json.dumps(response, indent=4))
+    all_data['achievements'] = len(response['achievements'])
+    ai_level = 'none'
+    for i in response['cursus_users'][0]['skills']:
+        if i['name'] == 'Algorithms & AI':
+            ai_level = i['level']
+    all_data['level_algo_ai'] = ai_level
+    return response
 
 def main():
-    get_app_name()
-    user_id = get_user_id()
-    get_level(user_id)
+    get_user_id()
+    response = get_level(str(all_data['user_id']))
+    get_piscine(response)
+    for i in all_data:
+        fout.write(i + ': ')
+        fout.write(str(all_data[i]) + '\n')
 
 if __name__ == "__main__":
     main()
-
-# f = open("ex01.out", "w")
-# if result == 0:
-#     result = "Item not found"
-# f.write(str(result))
-# f.close()

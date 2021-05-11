@@ -1,5 +1,3 @@
-import connector
-import json
 import sys
 import requests
 
