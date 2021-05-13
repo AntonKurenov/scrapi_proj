@@ -18,9 +18,6 @@ token = file.readline()
 
 HEADERS = {'Authorization': f"Bearer {token}"}
 
-def retry_task():
-    """Retry the task in case of the 500 error"""
-
 def num_to_month(month):
     return {1: 'january',
             2: 'february',
@@ -35,7 +32,7 @@ def num_to_month(month):
             11: 'november',
             12: 'december'}[month]
 
-def make_request(url, params={}):
+def make_request(url, params={}, count=0):
     res = requests.get(url=url, headers=HEADERS, params=params)
     if res.status_code == 429:
         if res.headers['X-Hourly-RateLimit-Remaining'] == '0':
@@ -46,7 +43,12 @@ def make_request(url, params={}):
         print(res.status_code)
         exit(1)
     elif res.status_code == 500:
-        retry_task()
+        sleep(2)
+        count += 1
+        if count == 3:
+            print("Error 500 multiple times, exiting")
+            exit(1)
+        make_request(url, params, count)
     # print(res.headers)
     return res
 

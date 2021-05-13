@@ -10,16 +10,16 @@ from time import sleep
 
 res_list = []
 
-fout = open("ex03.out", 'w')
+id_list = {'project_id': 0,
+           'campus_id': 0}
+
+fout = open("results.txt", 'w')
 basic_uri = "https://api.intra.42.fr/v2/"
 
 file = open('token.out', 'r')
 token = file.readline()
 
 HEADERS = {'Authorization': f"Bearer {token}"}
-
-def retry_task():
-    """Retry the task in case of the 500 error"""
 
 def num_to_month(month):
     return {1: 'january',
@@ -35,7 +35,7 @@ def num_to_month(month):
             11: 'november',
             12: 'december'}[month]
 
-def make_request(url, params={}):
+def make_request(url, params={}, count=0):
     res = requests.get(url=url, headers=HEADERS, params=params)
     if res.status_code == 429:
         if res.headers['X-Hourly-RateLimit-Remaining'] == '0':
@@ -46,7 +46,12 @@ def make_request(url, params={}):
         print(res.status_code)
         exit(1)
     elif res.status_code == 500:
-        retry_task()
+        sleep(2)
+        count += 1
+        if count == 3:
+            print("Error 500 multiple times, exiting")
+            exit(1)
+        make_request(url, params, count)
     # print(res.headers)
     return res
 
@@ -59,15 +64,10 @@ def create_list(res_json):
     for i in range(size_json):
         res_list.append(res_json[i]['login'])
 
-def get_logins(campus_id):
-    year = sys.argv[3]
-    if str(sys.argv[2]).isdigit() == True:
-        print("true")
-        month = num_to_month(int(sys.argv[2]))
+def get_logins(campus_id, project_id):
     params = {'per_page': '100',
               'filter[primary_campus_id]': str(campus_id),
-              'filter[pool_year]': str(year),
-              'filter[pool_month]': str(month)}
+              'filter[project_id]': str(project_id)}
             #   'range[login]': ['a', 'z']}
     res = make_request(basic_uri + 'users', params) 
     pages = math.ceil(int(res.headers['X-Total']) / int(res.headers['X-Per-Page']))
@@ -76,46 +76,42 @@ def get_logins(campus_id):
     for i in range(pages):
         params = {'page': str(i + 1),
                 'per_page': '100',
-                'filter[primary_campus_id]': str(campus_id),
-                'filter[pool_year]': str(year),
-                'filter[pool_month]': str(month)}
+                'project_id': str(project_id),
+                'filter[primary_campus_id]': str(campus_id)}
         res = make_request(basic_uri + 'users', params) 
         create_list(res.json())
     print("here!")
 
-def get_campus_id():
-    campus = sys.argv[1]
-    res = make_request(basic_uri + 'campus')
+def get_projects_and_campus_id(project, campus):
+    params = {'filter[name]': project}
+    res = make_request(basic_uri + 'projects', params)
     res_json = res.json()
-    campus_id = 0
-    pages = math.ceil(int(res.headers['X-Total']) / int(res.headers['X-Per-Page']))
-    print(pages)
-    for i in range(pages):
-        # print(i)
-        params = {'page': str(i + 1)}
-        res = make_request(basic_uri + 'campus', params)
-        res_json = res.json()
-        for i in res_json:
-            if i['name'] == campus:
-                campus_id = i['id']
-                break
-    if campus_id == 0:
-        print("There is no such campus")
-        fout.write("There is no such campus")
-        exit(0)
-    # print(json.dumps(res, indent=4))
-    print(campus_id)
-    return campus_id
-    # print(json.dumps(res, indent=4))
+    print(json.dumps(res_json, indent=4))
+    if len(res_json) == 0:
+        print("There is no such project, check the project name")
+        fout.write("There is no such project, check the project name")
+    id_list['project_id'] = res_json[0]['id']
+    for i in res_json[0]['campus']:
+        if i['name'] == campus:
+            id_list['campus_id'] = i['id']
+            break
+    if id_list['campus_id'] == 0:
+        print("There is no such campus, check the campus name")
+        fout.write("There is no such campus, check the campus name")
 
 def print_list():
     for i in range(len(res_list)):
         fout.write(res_list[i] + '\n')
 
 def main():
-    campus_id = get_campus_id()
-    get_logins(campus_id)
-    res_list.sort(reverse=False)
+    # campus_name = input("Enter campus name: ")
+    # project = input("Now project: ")
+    campus_name = 'Kazan'
+    project = 'webserv'
+    print("Ok, let's see...")
+    get_projects_and_campus_id(project, campus_name)
+    get_logins(str(id_list['campus_id']), str(id_list['project_id']))
+    # res_list.sort(reverse=False)
     print_list()
     print("main")
 
